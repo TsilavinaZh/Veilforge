@@ -1,0 +1,10 @@
+services:
+  veilforge:
+    build: .
+    ports: ["8787:8787"]
+    env_file: .env
+    volumes: ["veilforge-data:/data"]
+    restart: unless-stopped
+  # PostgreSQL/Redis can be added for horizontally scaled deployments; SQLite is intentional for private single-node mode.
+volumes:
+  veilforge-data:

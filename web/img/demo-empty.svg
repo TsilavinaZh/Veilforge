@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 150" width="220" height="150" role="img" aria-label="Illustration : un document dont les données sensibles sont masquées par des jetons">
+  <rect x="34" y="14" width="126" height="122" rx="12" fill="#131a24" stroke="#293446"/>
+  <rect x="50" y="34" width="70" height="8" rx="4" fill="#293446"/>
+  <rect x="50" y="52" width="94" height="8" rx="4" fill="#293446"/>
+  <rect x="50" y="74" width="60" height="20" rx="6" fill="#91e5be" fill-opacity=".13" stroke="#91e5be" stroke-opacity=".55"/>
+  <text x="80" y="88" text-anchor="middle" font-family="ui-monospace, Consolas, monospace" font-size="9" fill="#91e5be">EMAIL_001</text>
+  <rect x="116" y="78" width="28" height="8" rx="4" fill="#293446"/>
+  <rect x="50" y="104" width="86" height="8" rx="4" fill="#293446"/>
+  <rect x="50" y="120" width="52" height="8" rx="4" fill="#293446"/>
+
+  <g>
+    <circle cx="166" cy="96" r="30" fill="#0f151e" stroke="#91e5be" stroke-opacity=".6"/>
+    <path d="M156 96l7 7 14-16" fill="none" stroke="#91e5be" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g fill="#91e5be">
+    <circle cx="26" cy="44" r="3.5"/>
+    <circle cx="192" cy="36" r="3.5"/>
+    <circle cx="182" cy="134" r="3.5"/>
+  </g>
+</svg>

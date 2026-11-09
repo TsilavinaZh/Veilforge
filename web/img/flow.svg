@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 300" width="980" height="300" role="img" aria-label="Schéma : votre prompt passe par le coffre chiffré de Veilforge avant d'atteindre le modèle, puis la réponse revient se faire restaurer">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0l10 5-10 5z" fill="#91e5be"/>
+    </marker>
+    <marker id="arrowBack" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0l10 5-10 5z" fill="#5f7189"/>
+    </marker>
+  </defs>
+
+  <!-- étape 1 : le client -->
+  <g>
+    <rect x="20" y="56" width="240" height="150" rx="16" fill="#131a24" stroke="#293446"/>
+    <rect x="44" y="82" width="34" height="34" rx="10" fill="#1d2938"/>
+    <path d="M53 99h16M53 94h16M53 104h10" stroke="#9aa8bc" stroke-width="2.5" stroke-linecap="round"/>
+    <text x="44" y="150" font-family="system-ui, sans-serif" font-size="16" font-weight="650" fill="#edf2fa">Votre prompt</text>
+    <text x="44" y="176" font-family="system-ui, sans-serif" font-size="13" fill="#9aa8bc">E-mails, téléphones, cartes…</text>
+    <text x="44" y="196" font-family="system-ui, sans-serif" font-size="13" fill="#9aa8bc">en clair, chez vous</text>
+  </g>
+
+  <!-- étape 2 : veailforge -->
+  <g>
+    <rect x="370" y="36" width="250" height="190" rx="16" fill="#131a24" stroke="#91e5be" stroke-opacity=".5"/>
+    <path d="M412 74l24 9v18c0 15-10 26-24 32-14-6-24-17-24-32V83z" fill="#91e5be" fill-opacity=".15" stroke="#91e5be" stroke-width="2"/>
+    <path d="M403 98l7 7 13-15" fill="none" stroke="#91e5be" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="394" y="158" font-family="system-ui, sans-serif" font-size="16" font-weight="650" fill="#edf2fa">Veilforge</text>
+    <text x="394" y="184" font-family="system-ui, sans-serif" font-size="13" fill="#9aa8bc">Coffre chiffré · jetons</text>
+    <text x="394" y="204" font-family="ui-monospace, Consolas, monospace" font-size="12" fill="#91e5be">[[EMAIL_001]]</text>
+  </g>
+
+  <!-- étape 3 : le modèle -->
+  <g>
+    <rect x="720" y="56" width="240" height="150" rx="16" fill="#131a24" stroke="#293446"/>
+    <rect x="744" y="82" width="34" height="34" rx="10" fill="#1d2938"/>
+    <circle cx="761" cy="99" r="9" fill="none" stroke="#9aa8bc" stroke-width="2.5"/>
+    <path d="M761 90v18M752 99h18" stroke="#9aa8bc" stroke-width="2.5" stroke-linecap="round"/>
+    <text x="744" y="150" font-family="system-ui, sans-serif" font-size="16" font-weight="650" fill="#edf2fa">Le modèle</text>
+    <text x="744" y="176" font-family="system-ui, sans-serif" font-size="13" fill="#9aa8bc">Ne voit que des</text>
+    <text x="744" y="196" font-family="system-ui, sans-serif" font-size="13" fill="#9aa8bc">jetons réversibles</text>
+  </g>
+
+  <!-- allée -->
+  <path d="M266 116h96" stroke="#91e5be" stroke-width="2.5" stroke-dasharray="8 9" marker-end="url(#arrow)"/>
+  <path d="M626 116h88" stroke="#91e5be" stroke-width="2.5" stroke-dasharray="8 9" marker-end="url(#arrow)"/>
+
+  <!-- retour -->
+  <path d="M840 232v22H140v-24" fill="none" stroke="#5f7189" stroke-width="2.5" stroke-dasharray="8 9" marker-end="url(#arrowBack)"/>
+  <rect x="356" y="242" width="270" height="30" rx="15" fill="#0f151e" stroke="#293446"/>
+  <text x="491" y="262" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#9aa8bc">réponse restaurée avant l'affichage</text>
+</svg>
