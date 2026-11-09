@@ -1,62 +1,79 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 440" width="560" height="440" role="img" aria-label="Illustration : un prompt est analysé, les données sensibles deviennent des jetons avant d'atteindre le modèle">
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 440" width="560" height="440" role="img" aria-label="Illustration : un coffre chiffrÃ© conserve les valeurs d'origine, seul un jeton traverse la frontiÃ¨re vers le modÃ¨le">
   <defs>
-    <linearGradient id="hglow" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#91e5be" stop-opacity=".22"/>
+    <radialGradient id="hglow2" cx="42%" cy="46%" r="55%">
+      <stop offset="0" stop-color="#91e5be" stop-opacity=".20"/>
       <stop offset="1" stop-color="#91e5be" stop-opacity="0"/>
-    </linearGradient>
-    <filter id="hshadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000" flood-opacity=".35"/>
+    </radialGradient>
+    <pattern id="hdots" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.5" fill="#293446"/>
+    </pattern>
+    <filter id="hshadow2" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000" flood-opacity=".38"/>
     </filter>
+    <marker id="harrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0l10 5-10 5z" fill="#91e5be"/>
+    </marker>
   </defs>
 
-  <circle cx="300" cy="200" r="190" fill="url(#hglow)"/>
+  <rect x="20" y="30" width="520" height="380" rx="26" fill="url(#hdots)" opacity=".7"/>
+  <ellipse cx="250" cy="220" rx="230" ry="200" fill="url(#hglow2)"/>
 
-  <!-- carte : le prompt -->
-  <g filter="url(#hshadow)">
-    <rect x="34" y="74" width="360" height="240" rx="16" fill="#131a24" stroke="#293446"/>
-    <circle cx="62" cy="104" r="5" fill="#293446"/>
-    <circle cx="82" cy="104" r="5" fill="#293446"/>
-    <circle cx="102" cy="104" r="5" fill="#293446"/>
-    <rect x="60" y="132" width="240" height="9" rx="4.5" fill="#293446"/>
-    <rect x="60" y="154" width="300" height="9" rx="4.5" fill="#293446"/>
+  <!-- frontiÃ¨re -->
+  <path d="M384 44v352" stroke="#293446" stroke-width="2" stroke-dasharray="7 10"/>
+  <rect x="344" y="44" width="80" height="26" rx="13" fill="#0f151e" stroke="#293446"/>
+  <text x="384" y="61" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#9aa8bc">frontiÃ¨re</text>
 
-    <!-- jeton surligné dans la ligne -->
-    <rect x="60" y="180" width="164" height="26" rx="7" fill="#91e5be" fill-opacity=".13" stroke="#91e5be" stroke-opacity=".55"/>
-    <text x="72" y="198" font-family="ui-monospace, Consolas, monospace" font-size="13" fill="#91e5be">[[EMAIL_001]]</text>
-
-    <rect x="232" y="188" width="96" height="9" rx="4.5" fill="#293446"/>
-    <rect x="60" y="224" width="210" height="9" rx="4.5" fill="#293446"/>
-    <rect x="60" y="246" width="150" height="9" rx="4.5" fill="#293446"/>
-
-    <rect x="60" y="272" width="120" height="24" rx="8" fill="#91e5be"/>
-    <text x="120" y="288" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#10271d">Protéger</text>
+  <!-- coffre -->
+  <g filter="url(#hshadow2)">
+    <circle cx="216" cy="230" r="122" fill="#131a24" stroke="#293446" stroke-width="2"/>
+    <circle cx="216" cy="230" r="96" fill="none" stroke="#91e5be" stroke-opacity=".35" stroke-width="2"/>
+    <g fill="#293446">
+      <circle cx="216" cy="122" r="5"/><circle cx="216" cy="338" r="5"/>
+      <circle cx="108" cy="230" r="5"/><circle cx="324" cy="230" r="5"/>
+      <circle cx="140" cy="154" r="5"/><circle cx="292" cy="306" r="5"/>
+      <circle cx="292" cy="154" r="5"/><circle cx="140" cy="306" r="5"/>
+    </g>
+    <circle cx="216" cy="230" r="46" fill="#0f151e" stroke="#91e5be" stroke-opacity=".7" stroke-width="2"/>
+    <g stroke="#91e5be" stroke-width="5" stroke-linecap="round">
+      <path d="M216 196v-22"/><path d="M216 264v22"/>
+      <path d="M182 230h-22"/><path d="M250 230h22"/>
+    </g>
+    <circle cx="216" cy="230" r="12" fill="#91e5be"/>
+    <path d="M198 300h36v10a18 18 0 01-36 0z" fill="#91e5be" fill-opacity=".2"/>
   </g>
 
-  <!-- bouclier : le coffre -->
-  <g filter="url(#hshadow)">
-    <path d="M444 96l72 26v56c0 44-30 78-72 96-42-18-72-52-72-96v-56z" fill="#131a24" stroke="#91e5be" stroke-opacity=".55"/>
-    <path d="M444 132l40 14v34c0 26-17 46-40 57-23-11-40-31-40-57v-34z" fill="#91e5be" fill-opacity=".14"/>
-    <path d="M426 196l14 14 26-30" fill="none" stroke="#91e5be" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- jeton qui traverse -->
+  <path d="M338 230h56" stroke="#91e5be" stroke-width="2.5" stroke-dasharray="7 8" marker-end="url(#harrow)"/>
+  <g font-family="ui-monospace, Consolas, monospace" font-size="11">
+    <rect x="300" y="196" width="132" height="26" rx="7" fill="#0f151e" stroke="#91e5be" stroke-opacity=".55"/>
+    <text x="366" y="213" text-anchor="middle" fill="#91e5be">[[EMAIL_001]]</text>
   </g>
 
-  <!-- flux -->
-  <path d="M402 196h34" stroke="#91e5be" stroke-width="3" stroke-linecap="round" stroke-dasharray="7 8"/>
-  <path d="M436 188l12 8-12 8" fill="none" stroke="#91e5be" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- carte modÃ¨le -->
+  <g filter="url(#hshadow2)">
+    <rect x="416" y="150" width="118" height="160" rx="16" fill="#131a24" stroke="#293446"/>
+    <rect x="436" y="172" width="46" height="16" rx="8" fill="#91e5be" fill-opacity=".18"/>
+    <text x="459" y="184" text-anchor="middle" font-family="ui-monospace, Consolas, monospace" font-size="10" fill="#91e5be">LLM</text>
+    <rect x="436" y="206" width="78" height="8" rx="4" fill="#293446"/>
+    <rect x="436" y="224" width="62" height="8" rx="4" fill="#293446"/>
+    <rect x="436" y="242" width="70" height="8" rx="4" fill="#293446"/>
+    <rect x="436" y="268" width="78" height="24" rx="8" fill="#1d2938"/>
+    <text x="475" y="284" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#9aa8bc">rÃ©ponse</text>
+  </g>
 
   <!-- jetons flottants -->
-  <g font-family="ui-monospace, Consolas, monospace" font-size="12">
-    <rect x="66" y="344" width="146" height="30" rx="8" fill="#0f151e" stroke="#293446"/>
-    <text x="139" y="363" text-anchor="middle" fill="#9aa8bc">[[PHONE_001]]</text>
-    <rect x="226" y="358" width="176" height="30" rx="8" fill="#0f151e" stroke="#293446"/>
-    <text x="314" y="377" text-anchor="middle" fill="#9aa8bc">[[CREDIT_CARD_001]]</text>
-    <rect x="420" y="330" width="118" height="30" rx="8" fill="#0f151e" stroke="#293446"/>
-    <text x="479" y="349" text-anchor="middle" fill="#9aa8bc">[[IBAN_001]]</text>
+  <g font-family="ui-monospace, Consolas, monospace" font-size="11">
+    <rect x="46" y="76" width="132" height="28" rx="8" fill="#0f151e" stroke="#293446"/>
+    <text x="112" y="94" text-anchor="middle" fill="#9aa8bc">[[PHONE_001]]</text>
+    <rect x="404" y="342" width="118" height="28" rx="8" fill="#0f151e" stroke="#293446"/>
+    <text x="463" y="360" text-anchor="middle" fill="#9aa8bc">[[IBAN_001]]</text>
+    <rect x="60" y="356" width="140" height="28" rx="8" fill="#0f151e" stroke="#293446"/>
+    <text x="130" y="374" text-anchor="middle" fill="#9aa8bc">[[SECRET_001]]</text>
   </g>
 
-  <!-- points de connexion -->
   <g fill="#91e5be">
-    <circle cx="66" cy="52" r="4"/>
-    <circle cx="512" cy="404" r="4"/>
-    <circle cx="40" cy="330" r="4"/>
+    <circle cx="46" cy="230" r="3.5"/>
+    <circle cx="512" cy="112" r="3.5"/>
+    <circle cx="356" cy="386" r="3.5"/>
   </g>
 </svg>
