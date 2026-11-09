@@ -9,7 +9,6 @@
 <script defer src="/assets/docs.js"></script>
 </head>
 <body>
-<a class="skip" href="#doc-start">Aller au contenu</a>
 
 <div class="loader" id="loader" role="status" aria-live="polite">
   <div class="loader-card"><span class="logo">V</span><span class="spinner" aria-hidden="true"></span><p>Chargement de la documentation…</p></div>
@@ -27,7 +26,6 @@
       <a href="#securite">Sécurité</a>
     </nav>
     <span class="topnav-right">
-      <span id="doc-health" class="badge">Service…</span>
       <a class="button secondary" href="/">← Accueil</a>
       <a class="button primary" href="/swagger" target="_blank" rel="noopener">Swagger ↗</a>
     </span>
@@ -234,21 +232,34 @@ print(reponse.choices[0].message.content)</code></pre>
     <div class="code-card">
       <div class="code-card-head"><span>JSON</span><button class="copy-btn" data-copy="maskres">Copier</button></div>
 <pre id="code-maskres"><code>{
-  "masked_text": "Écrire à [[EMAIL_001]] avant [[DATE_001]]",
+  "masked_text": "Écrire à [[EMAIL_001]] avant le [[DATE_OF_BIRTH_001]]",
   "session_id": "vf_Kd8s...",
   "entities": [
     {
       "type": "EMAIL",
       "placeholder": "[[EMAIL_001]]",
+      "value": "ana@example.com",
+      "start": 9,
+      "end": 24,
       "confidence": 0.99,
       "source": "rules",
       "fingerprint": "1d420a5c0cf5948a"
+    },
+    {
+      "type": "DATE_OF_BIRTH",
+      "placeholder": "[[DATE_OF_BIRTH_001]]",
+      "value": "12/07/1988",
+      "start": 34,
+      "end": 44,
+      "confidence": 0.88,
+      "source": "rules",
+      "fingerprint": "7c19be03f8a41d55"
     }
   ]
 }</code></pre>
     </div>
 
-    <div class="callout"><strong>Empreintes, pas de valeurs</strong> — les réponses et le journal n'exposent que le type, le jeton, la confiance et une empreinte SHA-256 tronquée. La valeur d'origine ne quitte jamais le coffre chiffré.</div>
+    <div class="callout"><strong>Pourquoi la valeur figure ici</strong> — c'est le client qui a envoyé le texte : l'API ne fait que renvoyer ce qu'il connaît déjà, et les positions <code>start</code>/<code>end</code> servent à surligner chaque champ détecté dans l'aperçu local. Le champ <code>value</code> n'est <strong>jamais</strong> écrit dans le journal d'audit, qui ne conserve que des catégories, des comptages et des empreintes SHA-256 tronquées.</div>
   </section>
 
   <!-- ═══════════ 5. JETONS ═══════════ -->
@@ -285,13 +296,16 @@ print(reponse.choices[0].message.content)</code></pre>
         <tbody>
           <tr><td><code>EMAIL</code></td><td>ana@example.com</td><td>0,99</td><td>—</td></tr>
           <tr><td><code>CREDIT_CARD</code></td><td>4242 4242 4242 4242</td><td>0,99</td><td>Contrôle de Luhn obligatoire</td></tr>
-          <tr><td><code>SECRET</code></td><td>sk_live_…, password: …</td><td>0,99</td><td>Préfixes API et mots de passe</td></tr>
+          <tr><td><code>SECRET</code></td><td>sk_live_…, ghp_…, JWT</td><td>0,99</td><td>Préfixes d'API, tokens JWT, en-têtes de clé privée</td></tr>
+          <tr><td><code>PASSWORD</code></td><td>mot de passe : …, pwd= …</td><td>0,99</td><td>Mots de passe en clé/valeur, français et anglais</td></tr>
+          <tr><td><code>BANK_ACCOUNT</code></td><td>compte n° 123456789012</td><td>0,93</td><td>Libellé bancaire suivi d'un numéro</td></tr>
           <tr><td><code>IBAN</code></td><td>FR76 3000 6000 0112 …</td><td>0,96</td><td>Format bancaire conservateur</td></tr>
           <tr><td><code>IP_ADDRESS</code></td><td>192.168.1.24</td><td>0,94</td><td>—</td></tr>
           <tr><td><code>NATIONAL_ID</code></td><td>passeport AB1234567</td><td>0,91</td><td>Mot-clé contextuel requis</td></tr>
           <tr><td><code>DATE_OF_BIRTH</code></td><td>né le 12/07/1988</td><td>0,88</td><td>Indice multilingue requis</td></tr>
           <tr><td><code>PHONE</code></td><td>+33 6 12 34 56 78</td><td>0,83</td><td>Formes internationales</td></tr>
           <tr><td><code>PERSON</code></td><td>client Jean Dupont</td><td>0,69</td><td>Uniquement avec un indice humain à proximité</td></tr>
+          <tr><td><code>ADDRESS</code></td><td>24 rue des Oliviers, 69001 Lyon</td><td>0,90</td><td>Numéro + voie, code postal et ville optionnels</td></tr>
           <tr><td>Valeur personnalisée</td><td>Projet Sirius</td><td>1,00</td><td>Via <code>custom_dictionary</code></td></tr>
         </tbody>
       </table>

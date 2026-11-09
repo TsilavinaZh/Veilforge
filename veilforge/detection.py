@@ -26,7 +26,7 @@ PATTERNS: dict[str, list[tuple[str, float]]] = {
         (r"-----BEGIN (?:[A-Z ]+ )?PRIVATE KEY-----", .99),
         (r"(?i)\b(?:api[_ -]?key|token|clé\s*api|secret)\s*[:=]\s*[\"']?[^\s,;\"']{8,}", .95),
     ],
-    "ADDRESS": [(r"(?i)\b\d{1,4}[ \t]+(?:rue|avenue|av\.?|boulevard|bd\.?|impasse|chemin|all[ée]e|place|cours|street|str\.?|road|lane|drive|court)[ \t]+[a-zà-ÿ'’.-]+(?:[ \t]+[a-zà-ÿ'’.-]+){0,4}(?:[ \t]*,\s*\d{5}[ \t]+[a-zà-ÿ'’.-]+(?:[ \t]+[a-zà-ÿ'’.-]+){0,3})?", .90)],
+    "ADDRESS": [(r"(?i)\b\d{1,4}[ \t]+(?:rue|avenue|av\.?|boulevard|bd\.?|impasse|chemin|all[ée]e|place|cours|street|str\.?|road|lane|drive|court)[ \t]+[a-zà-ÿ'’-]+(?:[ \t]+[a-zà-ÿ'’-]+){0,4}(?:[ \t]*,\s*\d{5}[ \t]+[a-zà-ÿ'’-]+(?:[ \t]+[a-zà-ÿ'’-]+){0,2})?", .90)],
     "DATE_OF_BIRTH": [(r"(?i)\b(?:born|né(?:e)?|nacido|geboren|teraka)\s*(?:on|le|el|am|ny)?\s*\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b", .88)],
     "NATIONAL_ID": [(r"(?i)\b(?:passport|passeport|dni|nie|ausweis|cin|national id)\s*(?:no\.?|n°|:)?\s*[A-Z0-9-]{5,18}\b", .91)],
 }

@@ -8,39 +8,36 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ── Copier les blocs de code ─────────────────────────── */
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    try {
+      const area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.cssText = 'position:fixed;top:-9999px;opacity:0';
+      document.body.append(area);
+      area.select();
+      const ok = document.execCommand('copy');
+      area.remove();
+      return ok;
+    } catch {
+      return false;
+    }
+  }
+}
+
 document.addEventListener('click', async (event) => {
   const button = event.target.closest('[data-copy]');
   if (!button) return;
   const block = document.getElementById('code-' + button.dataset.copy);
   if (!block) return;
-  try {
-    await navigator.clipboard.writeText(block.textContent);
-    const previous = button.textContent;
-    button.textContent = 'Copié ✓';
-    setTimeout(() => { button.textContent = previous; }, 1400);
-  } catch {
-    button.textContent = 'Copie impossible';
-    setTimeout(() => { button.textContent = 'Copier'; }, 1400);
-  }
+  const previous = button.textContent;
+  button.textContent = (await copyText(block.textContent)) ? 'Copié ✓' : 'Copie impossible';
+  setTimeout(() => { button.textContent = previous; }, 1400);
 });
-
-/* ── État du service (badge de la barre) ──────────────── */
-async function health() {
-  const badge = $('doc-health');
-  if (!badge) return;
-  try {
-    const response = await fetch('/api/v1/health');
-    if (!response.ok) throw new Error(String(response.status));
-    const state = await response.json();
-    badge.textContent = state.upstream_configured
-      ? 'Service actif · amont configuré'
-      : 'Service actif · ' + (state.mode || 'strict');
-    badge.classList.add('ok');
-  } catch {
-    badge.textContent = 'Service hors ligne';
-    badge.classList.add('error');
-  }
-}
 
 /* ── Sommaire : section en cours ──────────────────────── */
 function initScrollSpy() {
@@ -76,5 +73,4 @@ document.addEventListener('click', (event) => {
   history.replaceState(null, '', link.getAttribute('href'));
 });
 
-health();
 initScrollSpy();

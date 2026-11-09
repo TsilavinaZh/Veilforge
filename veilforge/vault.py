@@ -52,7 +52,7 @@ class Vault:
                 self.db.execute("INSERT INTO mappings VALUES (?,?,?,?,?)", (sid, token, hit.kind, self.crypto.encrypt(hit.value.encode()), safe_fingerprint(hit.value)))
                 known[(hit.kind, hit.value)] = token
             out.extend((text[cursor:hit.start], token)); cursor = hit.end
-            entities.append({"type": hit.kind, "placeholder": token, "confidence": hit.confidence, "source": hit.source, "fingerprint": safe_fingerprint(hit.value)})
+            entities.append({"type": hit.kind, "placeholder": token, "value": hit.value, "start": hit.start, "end": hit.end, "confidence": hit.confidence, "source": hit.source, "fingerprint": safe_fingerprint(hit.value)})
         out.append(text[cursor:]); self.db.execute("INSERT INTO audit VALUES (?,?,?,?)", (datetime.now(timezone.utc).isoformat(), "mask", sid, json.dumps({"count":len(entities),"types":[e['type'] for e in entities]})))
         self.db.commit(); return "".join(out), sid, entities
 

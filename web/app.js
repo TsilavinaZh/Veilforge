@@ -6,6 +6,7 @@ let demoBusy = false;
 let demoSession = null;
 let demoMasked = '';
 let demoIndex = 0;
+let demoEntities = [];
 
 const labels = {
   EMAIL: 'Adresse e-mail', PHONE: 'Téléphone', PERSON: 'Personne',
@@ -76,15 +77,114 @@ function errorMessage(error) {
 function renderMasked(container, text) {
   container.classList.remove('empty');
   container.replaceChildren();
+  const byToken = new Map(demoEntities.map(entity => [entity.placeholder, entity]));
   let cursor = 0;
   for (const match of text.matchAll(tokenPattern)) {
     container.append(document.createTextNode(text.slice(cursor, match.index)));
     const mark = document.createElement('mark');
     mark.textContent = match[0];
+    const entity = byToken.get(match[0]);
+    if (entity) {
+      mark.tabIndex = 0;
+      mark.dataset.tip = '1';
+      mark.setAttribute('aria-label', tokenSummary(entity));
+    }
     container.append(mark);
     cursor = match.index + match[0].length;
   }
   container.append(document.createTextNode(text.slice(cursor)));
+}
+
+/* Surbrillance des champs détectés dans le panneau « Texte original ».
+   La couche .editor-marks reprend exactement le texte du textarea (mêmes
+   métriques) : seuls les fonds des `<mark>` changent, jamais la mise en page. */
+function renderInputMarks(text, entities) {
+  const layer = $('demo-marks');
+  if (!layer) return;
+  const editor = layer.closest('.editor');
+  if (editor) editor.classList.add('is-marked');
+  layer.replaceChildren();
+  const spans = (entities || [])
+    .filter(entity => typeof entity.start === 'number' && text.slice(entity.start, entity.end) === entity.value)
+    .sort((a, b) => a.start - b.start);
+  let cursor = 0;
+  for (const entity of spans) {
+    if (entity.start < cursor) continue;
+    layer.append(document.createTextNode(text.slice(cursor, entity.start)));
+    const mark = document.createElement('mark');
+    mark.textContent = text.slice(entity.start, entity.end);
+    layer.append(mark);
+    cursor = entity.end;
+  }
+  layer.append(document.createTextNode(text.slice(cursor)));
+  if (text.endsWith('\n')) layer.append(document.createTextNode(' '));
+}
+
+/* ── Détail d'un champ masqué (survol ou focus) ────────── */
+const SOURCES = { dictionary: 'dictionnaire', context: 'contexte', rules: 'règles' };
+
+function tokenSummary(entity) {
+  const label = labels[entity.type] || entity.type;
+  return label + ' masquée : ' + (entity.value || 'valeur inconnue') +
+    ', confiance ' + Math.round(entity.confidence * 100) + ' %';
+}
+
+function showTokenTip(mark) {
+  const container = $('demo-output');
+  const entity = demoEntities.find(item => item.placeholder === mark.textContent);
+  if (!container || !entity) return;
+  let tip = container.querySelector('.token-tip');
+  if (!tip) {
+    tip = document.createElement('div');
+    tip.className = 'token-tip';
+    tip.setAttribute('role', 'tooltip');
+    tip.hidden = true;
+    container.append(tip);
+  }
+  tip.replaceChildren();
+  const head = document.createElement('strong');
+  head.textContent = labels[entity.type] || entity.type;
+  const code = document.createElement('code');
+  code.textContent = entity.placeholder;
+  tip.append(head, code);
+  for (const [key, value] of [
+    ['Masque', entity.value || '—'],
+    ['Confiance', Math.round(entity.confidence * 100) + ' %'],
+    ['Source', SOURCES[entity.source] || entity.source || 'règles'],
+    ['Empreinte', entity.fingerprint || '—']
+  ]) {
+    const row = document.createElement('div');
+    row.className = 'tip-row';
+    const label = document.createElement('b');
+    label.textContent = key;
+    const content = document.createElement('span');
+    content.textContent = value;
+    row.append(label, content);
+    tip.append(row);
+  }
+  tip.hidden = false;
+  const left = Math.max(6, Math.min(mark.offsetLeft, container.clientWidth - tip.offsetWidth - 6));
+  const above = mark.offsetTop - tip.offsetHeight - 8;
+  tip.style.left = left + 'px';
+  tip.style.top = (above >= 4 ? above : mark.offsetTop + mark.offsetHeight + 8) + 'px';
+}
+
+function hideTokenTip() {
+  const tip = document.querySelector('#demo-output .token-tip');
+  if (tip) tip.hidden = true;
+}
+
+function wireTokenTips(container) {
+  container.addEventListener('mouseover', event => {
+    const mark = event.target.closest('mark[data-tip]');
+    if (mark) showTokenTip(mark);
+  });
+  container.addEventListener('mouseleave', hideTokenTip);
+  container.addEventListener('focusin', event => {
+    const mark = event.target.closest('mark[data-tip]');
+    if (mark) showTokenTip(mark);
+  });
+  container.addEventListener('focusout', hideTokenTip);
 }
 
 function setBusyButton(button, busy, busyLabel, idleLabel) {
@@ -105,6 +205,7 @@ function demoStatus(message, kind = '') {
 function demoInvalidate() {
   demoSession = null;
   demoMasked = '';
+  demoEntities = [];
   const out = $('demo-output');
   out.classList.add('empty');
   out.replaceChildren();
@@ -125,6 +226,7 @@ function demoInvalidate() {
   skeleton.append(document.createElement('span'), document.createElement('span'), document.createElement('span'));
 
   out.append(art, strong, p, skeleton);
+  renderInputMarks($('demo-input').value, []);
   $('demo-entities').hidden = true;
   $('demo-entities').replaceChildren();
   $('demo-restore').hidden = true;
@@ -156,7 +258,9 @@ async function runDemo() {
     const masked = await api('mask', { text });
     demoMasked = masked.masked_text;
     demoSession = masked.session_id;
+    demoEntities = masked.entities || [];
     renderMasked($('demo-output'), demoMasked);
+    renderInputMarks($('demo-input').value, demoEntities);
 
     const chips = $('demo-entities');
     chips.replaceChildren();
@@ -216,36 +320,45 @@ $('demo-reset').addEventListener('click', () => {
 });
 
 /* ── Extrait de code ────────────────────────────────────── */
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    try {
+      const area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.cssText = 'position:fixed;top:-9999px;opacity:0';
+      document.body.append(area);
+      area.select();
+      const ok = document.execCommand('copy');
+      area.remove();
+      return ok;
+    } catch {
+      return false;
+    }
+  }
+}
+
 $('copy-snippet').addEventListener('click', async () => {
   const button = $('copy-snippet');
   const done = label => {
     button.textContent = label;
     setTimeout(() => { button.textContent = 'Copier'; }, 1800);
   };
-  try {
-    await navigator.clipboard.writeText($('snippet').innerText);
-    done('Copié ✓');
-  } catch {
-    done('Copie indisponible');
-  }
+  done(await copyText($('snippet').innerText) ? 'Copié ✓' : 'Copie indisponible');
 });
 
 /* ── État du service ────────────────────────────────────── */
 async function health() {
-  const setState = (badge, text, ok) => {
-    badge.textContent = text;
-    badge.classList.toggle('ok', ok);
-    badge.classList.toggle('error', !ok);
-  };
   try {
     const result = await api('health');
-    setState($('landing-health'), result.mode === 'fail-closed' ? '● Service actif · mode strict' : '● Service actif · mode permissif', true);
     $('provider').textContent = result.upstream_configured
       ? 'Configuré sur le serveur (connectivité non vérifiée).'
       : 'Aucun fournisseur configuré · écho de développement.';
     $('service-state').textContent = 'Accessible · mode ' + (result.mode === 'fail-closed' ? 'strict' : 'permissif');
   } catch {
-    setState($('landing-health'), '● Service inaccessible', false);
     $('provider').textContent = 'État du fournisseur indisponible.';
     $('service-state').textContent = 'Service injoignable. Démarrez Veilforge puis rechargez la page.';
   }
@@ -286,9 +399,97 @@ function route() {
 }
 window.addEventListener('hashchange', route);
 
+/* ── Exemples d'intégration, un onglet par fournisseur ─── */
+const SNIPPETS = {
+  openai: {
+    label: 'Python · client OpenAI',
+    code: 'from openai import OpenAI\n\n' +
+      'client = OpenAI(\n' +
+      '    base_url="http://localhost:8787/v1",\n' +
+      '    api_key="local-dev-key",\n' +
+      ')\n\n' +
+      'client.chat.completions.create(\n' +
+      '    model="gpt-4o-mini",\n' +
+      '    messages=[{"role": "user",\n' +
+      '               "content": "Écris un mail à ana@example.com"}],\n' +
+      ')'
+  },
+  gemini: {
+    label: 'Python · modèle Gemini',
+    code: 'from openai import OpenAI\n\n' +
+      'client = OpenAI(\n' +
+      '    base_url="http://localhost:8787/v1",\n' +
+      '    api_key="local-dev-key",\n' +
+      ')\n\n' +
+      'client.chat.completions.create(\n' +
+      '    model="gemini-2.0-flash",\n' +
+      '    messages=[{"role": "user",\n' +
+      '               "content": "Écris un mail à ana@example.com"}],\n' +
+      ')'
+  },
+  mistral: {
+    label: 'Python · modèle Mistral',
+    code: 'from openai import OpenAI\n\n' +
+      'client = OpenAI(\n' +
+      '    base_url="http://localhost:8787/v1",\n' +
+      '    api_key="local-dev-key",\n' +
+      ')\n\n' +
+      'client.chat.completions.create(\n' +
+      '    model="mistral-large-latest",\n' +
+      '    messages=[{"role": "user",\n' +
+      '               "content": "Écris un mail à ana@example.com"}],\n' +
+      ')'
+  },
+  node: {
+    label: 'Node.js · client OpenAI',
+    code: 'import OpenAI from "openai";\n\n' +
+      'const client = new OpenAI({\n' +
+      '  baseURL: "http://localhost:8787/v1",\n' +
+      '  apiKey: "local-dev-key",\n' +
+      '});\n\n' +
+      'const r = await client.chat.completions.create({\n' +
+      '  model: "gpt-4o-mini",\n' +
+      '  messages: [{ role: "user", content: "Écris un mail à ana@example.com" }],\n' +
+      '});\n' +
+      'console.log(r.choices[0].message.content);'
+  },
+  curl: {
+    label: 'cURL · chat completions',
+    code: `curl -s http://localhost:8787/v1/chat/completions \\
+  -H "Authorization: Bearer local-dev-key" \\
+  -H "Content-Type: application/json" \\
+  -d '{"model":"gpt-4o-mini",
+       "messages":[{"role":"user","content":"Écris un mail à ana@example.com"}]}'`
+  }
+};
+
+function showSnippet(key) {
+  const snippet = SNIPPETS[key];
+  if (!snippet) return;
+  $('snippet').textContent = snippet.code;
+  $('snippet-label').textContent = snippet.label;
+  document.querySelectorAll('.snippet-tab').forEach(tab => {
+    const active = tab.dataset.snippet === key;
+    tab.classList.toggle('is-active', active);
+    tab.setAttribute('aria-selected', String(active));
+  });
+}
+
+document.querySelectorAll('.snippet-tab').forEach(tab => {
+  tab.addEventListener('click', () => showSnippet(tab.dataset.snippet));
+});
+
 /* ── Démarrage ──────────────────────────────────────────── */
 $('base-url').textContent = location.origin + '/v1';
 $('demo-input').value = DEMO_EXAMPLES[0];
+renderInputMarks($('demo-input').value, []);
+$('demo-input').addEventListener('scroll', () => {
+  const layer = $('demo-marks');
+  if (layer) layer.scrollTop = $('demo-input').scrollTop;
+});
+wireTokenTips($('demo-output'));
 initMarquee();
 route();
 health();
+/* Premier exemple affiché dès l'ouverture de la page. */
+setTimeout(() => { if (!demoSession && !demoBusy) runDemo(); }, 450);

@@ -9,7 +9,6 @@
 <link rel="stylesheet" href="/assets/styles.css"><script defer src="/assets/app.js"></script>
 </head>
 <body>
-<a class="skip" href="#main">Aller au contenu</a>
 
 <!-- Chargement -->
 <div class="loader" id="loader" role="status" aria-live="polite">
@@ -31,7 +30,6 @@
       <a href="#integration">Intégration</a>
     </nav>
     <span class="topnav-right">
-      <span id="landing-health" class="badge">Service…</span>
       <a class="button primary" href="/docs" target="_blank" rel="noopener">Documentation API ↗</a>
     </span>
   </div>
@@ -50,12 +48,12 @@
         <a class="button primary lg" href="#exemple">Essayer l'exemple →</a>
         <a class="button secondary lg" href="/docs" target="_blank" rel="noopener">Documentation API ↗</a>
       </div>
-      <ul class="hero-points">
+      <!-- <ul class="hero-points">
         <li><i class="dot"></i> 100 % local</li>
         <li><i class="dot"></i> Compatible OpenAI</li>
         <li><i class="dot"></i> Mode strict (fail-closed)</li>
         <li><i class="dot"></i> Chiffré au repos</li>
-      </ul>
+      </ul> -->
     </div>
     <div class="hero-art">
       <img src="/assets/img/hero.svg" width="560" height="440" alt="Un coffre chiffré conserve les valeurs d'origine : seul un jeton traverse la frontière vers le modèle." fetchpriority="high">
@@ -86,7 +84,7 @@
         </div>
       </div>
     </div>
-    <p class="models-note">Marques et logos appartiennent à leurs propriétaires respectifs ; leur affichage indique une compatibilité technique, aucune affiliation ni approbation.</p>
+    <!-- <p class="models-note">Marques et logos appartiennent à leurs propriétaires respectifs ; leur affichage indique une compatibilité technique, aucune affiliation ni approbation.</p> -->
   </div>
 </section>
 
@@ -109,7 +107,10 @@
         <div class="panel-heading"><h3><span class="step-number">01</span>Texte original</h3><span class="muted">Visible par vous</span></div>
         <div class="panel-body">
           <label class="sr-only" for="demo-input">Texte de démonstration</label>
-          <textarea id="demo-input" rows="7" spellcheck="false"></textarea>
+          <div class="editor">
+            <div id="demo-marks" class="editor-marks" aria-hidden="true"></div>
+            <textarea id="demo-input" rows="7" spellcheck="false"></textarea>
+          </div>
           <p class="hint">Données fictives destinées à la démonstration. <kbd>Ctrl</kbd>+<kbd>Entrée</kbd> pour lancer.</p>
         </div>
       </section>
@@ -181,7 +182,7 @@
       <article class="feature">
         <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
         <h3>Détection multicatégorie</h3>
-        <p>E-mails, téléphones, cartes (contrôle de Luhn), adresses IP, IBAN, secrets, dates de naissance, pièces d'identité, dictionnaire personnalisé et noms en contexte.</p>
+        <p>E-mails, téléphones, cartes (contrôle de Luhn), adresses IP, IBAN et comptes bancaires, mots de passe, clés et JWT, adresses postales, dates de naissance, pièces d'identité, dictionnaire personnalisé et noms en contexte.</p>
       </article>
       <article class="feature">
         <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="12" r="4"/><path d="M12 12h9M17 12v3M20 12v2"/></svg></span>
@@ -219,8 +220,15 @@
     <p class="eyebrow">INTÉGRATION</p>
     <h2 id="integration-title">Une ligne de configuration, aucun code à changer</h2>
     <div class="split">
-      <div class="code-card">
-        <div class="code-card-head"><span>Python · client OpenAI</span><button id="copy-snippet" class="text-button">Copier</button></div>
+      <div class="code-card snippet-card">
+        <div class="snippet-tabs" role="tablist" aria-label="Exemples par fournisseur">
+          <button type="button" class="snippet-tab is-active" role="tab" aria-selected="true" data-snippet="openai">OpenAI</button>
+          <button type="button" class="snippet-tab" role="tab" aria-selected="false" data-snippet="gemini">Gemini</button>
+          <button type="button" class="snippet-tab" role="tab" aria-selected="false" data-snippet="mistral">Mistral</button>
+          <button type="button" class="snippet-tab" role="tab" aria-selected="false" data-snippet="node">Node.js</button>
+          <button type="button" class="snippet-tab" role="tab" aria-selected="false" data-snippet="curl">cURL</button>
+        </div>
+        <div class="code-card-head"><span id="snippet-label">Python · client OpenAI</span><button id="copy-snippet" class="text-button">Copier</button></div>
 <pre id="snippet"><code>from openai import OpenAI
 
 client = OpenAI(
@@ -233,6 +241,7 @@ client.chat.completions.create(
     messages=[{"role": "user",
                "content": "Écris un mail à ana@example.com"}],
 )</code></pre>
+        <p class="snippet-note">Le même client OpenAI, seul le modèle change : <code>VEILFORGE_UPSTREAM_URL</code> doit pointer vers un amont compatible (par ex. OpenRouter) qui sert ces modèles.</p>
       </div>
       <div class="split-side">
         <h3>Deux réglages suffisent</h3>

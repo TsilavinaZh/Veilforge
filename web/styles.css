@@ -15,6 +15,7 @@
   --on-accent: #10271d;
   --hover: #1d2938;
   --error: #ffb4b4;
+  --faint: #6d7d92;
   --accent-soft: rgba(145, 229, 190, .10);
   --accent-line: rgba(145, 229, 190, .35);
   --shadow: 0 10px 34px rgba(0, 0, 0, .28);
@@ -276,6 +277,28 @@ textarea:focus, input:focus {
   outline: none; border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
+
+/* Surbrillance des champs détectés dans le texte original (panneau 01) */
+.editor { position: relative; }
+.editor.is-marked #demo-input { position: relative; z-index: 2; }
+#demo-input { display: block; }
+.editor-marks {
+  position: absolute; inset: 0; z-index: 1; overflow: hidden;
+  padding: 14px 15px; border: 1px solid transparent; border-radius: 9px;
+  font-size: 13px; line-height: 1.75;
+  white-space: pre-wrap; overflow-wrap: anywhere;
+  color: var(--ink); pointer-events: none;
+}
+#demo-input { overflow-wrap: anywhere; }
+.editor.is-marked #demo-input {
+  background: transparent; color: transparent; caret-color: var(--ink);
+}
+.editor.is-marked #demo-input::selection { background: rgba(145, 229, 190, .3); color: transparent; }
+.editor-marks mark {
+  background: rgba(145, 229, 190, .22); color: inherit;
+  text-decoration: underline; text-decoration-color: rgba(145, 229, 190, .55);
+  text-underline-offset: 3px; border-radius: 3px;
+}
 label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; }
 .hint { font-size: 11.5px; color: var(--muted); line-height: 1.7; margin: 14px 0 0; }
 kbd {
@@ -316,10 +339,37 @@ kbd {
 .output.empty p { font-size: 12px; max-width: 300px; margin: 6px 0 0; }
 .empty-art { margin-bottom: 6px; }
 .output mark {
+  display: inline-block;
   background: var(--accent-soft); color: var(--accent);
-  border: 1px solid var(--accent-line); border-radius: 5px;
-  padding: 2px 5px; font-size: 12.5px; overflow-wrap: anywhere;
+  border: 1px solid var(--accent-line); border-radius: 999px;
+  padding: 2px 10px; font-size: 12.5px; overflow-wrap: anywhere;
+  cursor: help; transition: background .15s, border-color .15s, transform .15s;
 }
+.output mark:hover, .output mark:focus-visible {
+  background: rgba(145, 229, 190, .2); border-color: var(--accent);
+  transform: translateY(-1px); outline: none;
+}
+
+/* Détail d'un champ masqué, affiché au survol d'un jeton */
+.token-tip {
+  position: absolute; z-index: 15; min-width: 232px; max-width: 330px;
+  padding: 11px 13px; pointer-events: none;
+  background: var(--panel); border: 1px solid var(--accent-line);
+  border-radius: 11px; box-shadow: var(--shadow);
+  font-size: 12px; line-height: 1.6; color: var(--muted);
+  animation: fade-up .16s ease both;
+}
+.token-tip strong { display: block; color: var(--ink); font-size: 12.5px; font-weight: 650; }
+.token-tip code { display: block; margin-top: 3px; color: var(--accent); font-size: 11.5px; }
+.token-tip .tip-row {
+  display: flex; justify-content: space-between; gap: 14px;
+  margin-top: 7px; font-size: 11.5px;
+}
+.token-tip .tip-row b {
+  color: var(--faint); font-weight: 650; font-size: 9.5px;
+  letter-spacing: .08em; text-transform: uppercase; flex-shrink: 0;
+}
+.token-tip .tip-row span { color: var(--ink); text-align: right; overflow-wrap: anywhere; }
 
 .skeleton { display: grid; gap: 10px; width: 100%; margin-top: 14px; }
 .skeleton span {
@@ -420,6 +470,28 @@ kbd {
   font-size: 12.5px; line-height: 1.75; color: var(--ink);
   overflow-x: auto;
 }
+
+/* Onglets d'exemple par fournisseur */
+.snippet-tabs {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  padding: 11px 14px; border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, .02);
+}
+.snippet-tab {
+  border: 1px solid var(--line); background: transparent; color: var(--muted);
+  border-radius: 999px; padding: 6px 13px;
+  font-size: 11.5px; font-weight: 600; cursor: pointer;
+  transition: color .15s, border-color .15s, background .15s;
+}
+.snippet-tab:hover { color: var(--ink); border-color: var(--accent-line); }
+.snippet-tab.is-active {
+  background: var(--accent-soft); color: var(--accent); border-color: var(--accent-line);
+}
+.snippet-note {
+  margin: 0; padding: 12px 18px; border-top: 1px solid var(--line);
+  font-size: 11.5px; line-height: 1.7; color: var(--muted);
+}
+.snippet-note code { color: var(--accent); }
 .split-side h3 { font-size: 16px; margin-bottom: 12px; }
 .split-side p { line-height: 1.75; }
 .split-side code { color: var(--accent); font-size: 12px; }
