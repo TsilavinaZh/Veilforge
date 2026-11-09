@@ -5,6 +5,7 @@
   <img src="docs/assets/banner.svg" alt="Veilforge, a local-first privacy firewall for LLM traffic: personal data becomes reversible placeholders before it leaves your machine and comes back in the answer. You send 'Client : Ana Fournier, ana@example.com', the model sees 'Client : [[PERSON_001]], [[EMAIL_001]]', you get the original sentence back. Rules only, no model call, runs on your machine, Apache-2.0." width="100%">
 </picture>
 
+[![Try it live](https://img.shields.io/badge/try%20it%20live-veilforge.tendry.mg-b6f36b)](https://veilforge.tendry.mg/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-3776AB?logo=python&logo=white)](requirements.txt)
 [![Tests: 7 passed](https://img.shields.io/badge/tests-7%20passed-brightgreen)](#verification)
@@ -20,7 +21,7 @@ contains no code, models or assets from PII Guard.
 | **What** | A privacy firewall in front of any OpenAI-compatible endpoint: detect → replace with session-scoped tokens → forward → restore in the answer |
 | **Detection** | Rules only (regex + context + Luhn), runs in-process, no model call, no API cost |
 | **Data path** | Everything runs on your machine; the upstream only ever sees `[[EMAIL_001]]`-style tokens |
-| **Pages** | `/` presentation page with a live example · `/docs` documentation · `/swagger` OpenAPI UI |
+| **Pages** | `/` presentation page with a live example · `/docs` documentation · `/swagger` OpenAPI UI — hosted at [veilforge.tendry.mg](https://veilforge.tendry.mg/) |
 | **License** | [Apache-2.0](LICENSE) |
 
 ## What it does
@@ -39,6 +40,9 @@ contains no code, models or assets from PII Guard.
   guarantee.
 
 ## Quickstart
+
+**No install:** open the hosted demo at **[veilforge.tendry.mg](https://veilforge.tendry.mg/)** —
+presentation page, live example and documentation, no sign-up.
 
 ```bash
 # Windows
