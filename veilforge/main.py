@@ -12,7 +12,13 @@ from .vault import vault
 
 WEB_DIR = Path(__file__).resolve().parent.parent / "web"
 
-app = FastAPI(title="Veilforge Privacy Gateway", version="1.0.0", description="Local-first reversible privacy firewall for LLM traffic.")
+app = FastAPI(
+    title="Veilforge Privacy Gateway",
+    version="1.0.0",
+    description="Local-first reversible privacy firewall for LLM traffic.",
+    docs_url="/swagger",
+    redoc_url="/redoc",
+)
 app.mount("/assets", StaticFiles(directory=str(WEB_DIR)), name="assets")
 _hits: dict[str, list[float]] = {}
 
@@ -31,6 +37,9 @@ class TextInput(BaseModel):
 
 @app.get("/", include_in_schema=False)
 def home(): return FileResponse(WEB_DIR / "index.html")
+
+@app.get("/docs", include_in_schema=False)
+def docs(): return FileResponse(WEB_DIR / "docs.html")
 
 @app.get("/api/v1/health")
 def health(): return {"status":"ok","mode":"fail-closed" if settings.fail_closed else "permissive","upstream_configured":bool(settings.upstream_url)}

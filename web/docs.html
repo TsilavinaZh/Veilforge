@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Documentation — Veilforge</title>
+<meta name="description" content="Documentation Veilforge : démarrage, passerelle compatible OpenAI, référence API, jetons et sessions, détection, configuration, sécurité.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%2391e5be' d='M16 1l13 7.5v15L16 31 3 23.5v-15z'/%3E%3Cpath fill='%2310271d' d='M16 7l7 4v8l-7 4-7-4v-8z'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/assets/styles.css"><link rel="stylesheet" href="/assets/docs.css">
+<script defer src="/assets/docs.js"></script>
+</head>
+<body>
+<a class="skip" href="#doc-start">Aller au contenu</a>
+
+<div class="loader" id="loader" role="status" aria-live="polite">
+  <div class="loader-card"><span class="logo">V</span><span class="spinner" aria-hidden="true"></span><p>Chargement de la documentation…</p></div>
+</div>
+<noscript><style>.loader{display:none!important}</style></noscript>
+
+<header class="topnav">
+  <div class="topnav-inner">
+    <a class="brand" href="/"><span class="logo">V</span>veilforge<span class="accent">.</span></a>
+    <nav class="topnav-links" aria-label="Navigation de la documentation">
+      <a href="#demarrage">Démarrage</a>
+      <a href="#passerelle">Passerelle</a>
+      <a href="#api">API</a>
+      <a href="#detection">Détection</a>
+      <a href="#securite">Sécurité</a>
+    </nav>
+    <span class="topnav-right">
+      <span id="doc-health" class="badge">Service…</span>
+      <a class="button secondary" href="/">← Accueil</a>
+      <a class="button primary" href="/swagger" target="_blank" rel="noopener">Swagger ↗</a>
+    </span>
+  </div>
+</header>
+
+<main id="doc-start">
+
+<!-- ═══════════ TÊTE ═══════════ -->
+<section class="doc-hero">
+  <div class="doc-hero-inner">
+    <p class="eyebrow">DOCUMENTATION</p>
+    <h1>Tout ce qu'il faut pour<br><span class="accent">mettre Veilforge en route.</span></h1>
+    <p class="doc-lead">Cette page explique le fonctionnement de la passerelle, ses endpoints, son format de jetons et son modèle de sécurité. Elle complète la <a href="/">page d'accueil</a>, qui contient une démonstration interactive, et le <a href="/swagger" target="_blank" rel="noopener">Swagger</a>, qui décrit chaque route au format OpenAPI.</p>
+    <div class="doc-cards">
+      <article class="doc-card"><span>Version</span><strong>1.0.0</strong></article>
+      <article class="doc-card"><span>Licence</span><strong>Apache-2.0</strong></article>
+      <article class="doc-card"><span>Entrée</span><strong>/v1</strong></article>
+      <article class="doc-card"><span>Mode par défaut</span><strong>Strict</strong></article>
+    </div>
+    <div class="doc-jumps">
+      <a class="button primary" href="#demarrage">Démarrage rapide →</a>
+      <a class="button secondary" href="#api">Référence API</a>
+      <a class="button secondary" href="#configuration">Configuration</a>
+    </div>
+  </div>
+</section>
+
+<div class="docs-layout">
+
+  <!-- ═══════════ SOMMAIRE ═══════════ -->
+  <nav class="toc" aria-label="Sommaire">
+    <p class="toc-title">SUR CETTE PAGE</p>
+    <a href="#demarrage">1. Démarrage rapide</a>
+    <a href="#exemple">2. Comment marche l'exemple</a>
+    <a href="#passerelle">3. Passerelle compatible OpenAI</a>
+    <a href="#api">4. Référence API</a>
+    <a href="#jetons">5. Jetons &amp; sessions</a>
+    <a href="#detection">6. Détection</a>
+    <a href="#configuration">7. Configuration</a>
+    <a href="#securite">8. Sécurité</a>
+    <a href="#architecture">9. Architecture</a>
+    <a href="#outillage">10. Tests &amp; Docker</a>
+    <a href="#faq">11. Questions fréquentes</a>
+    <a class="toc-swagger" href="/swagger" target="_blank" rel="noopener">Ouvrir le Swagger ↗</a>
+  </nav>
+
+  <div class="doc-content">
+
+  <!-- ═══════════ 1. DÉMARRAGE ═══════════ -->
+  <section class="doc-section" id="demarrage">
+    <p class="doc-num">01</p>
+    <h2>Démarrage rapide</h2>
+    <p class="doc-p">Veilforge est une application Python (FastAPI) qui s'exécute en local. Aucune base externe n'est nécessaire : les correspondances sont stockées dans un fichier SQLite chiffré à côté du projet.</p>
+
+    <div class="step-list">
+      <div class="step-item"><span>1</span><div><strong>Installer les dépendances</strong><p>Python 3.11 ou plus récent est requis.</p></div></div>
+      <div class="step-item"><span>2</span><div><strong>Préparer la configuration</strong><p>Copiez <code>.env.example</code> vers <code>.env</code> et renseignez les secrets pour tout usage au-delà du développement.</p></div></div>
+      <div class="step-item"><span>3</span><div><strong>Lancer le service</strong><p>Ouvrez ensuite <code>http://localhost:8787</code> : la page d'accueil contient la démonstration.</p></div></div>
+    </div>
+
+    <div class="code-card">
+      <div class="code-card-head"><span>Windows · PowerShell</span><button class="copy-btn" data-copy="run">Copier</button></div>
+<pre id="code-run"><code>python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+copy .env.example .env
+uvicorn veilforge.main:app --reload --port 8787</code></pre>
+    </div>
+
+    <div class="code-card">
+      <div class="code-card-head"><span>macOS / Linux</span><button class="copy-btn" data-copy="run2">Copier</button></div>
+<pre id="code-run2"><code>python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+uvicorn veilforge.main:app --reload --port 8787</code></pre>
+    </div>
+
+    <div class="callout ok"><strong>Ce que vous obtenez</strong><ul>
+      <li><code>http://localhost:8787</code> — page de présentation avec la démonstration masque/restaure ;</li>
+      <li><code>http://localhost:8787/docs</code> — cette documentation ;</li>
+      <li><code>http://localhost:8787/swagger</code> — interface Swagger / OpenAPI ;</li>
+      <li><code>http://localhost:8787/v1</code> — point d'entrée compatible OpenAI.</li>
+    </ul></div>
+  </section>
+
+  <!-- ═══════════ 2. EXEMPLE ═══════════ -->
+  <section class="doc-section" id="exemple">
+    <p class="doc-num">02</p>
+    <h2>Comment marche l'exemple</h2>
+    <p class="doc-p">La démonstration de la page d'accueil exécute exactement deux appels à votre instance locale. Aucun modèle n'est sollicité : c'est le même mécanisme que la passerelle, isolé pour que vous puissiez le voir.</p>
+
+    <ol class="flow-list">
+      <li><strong>Mask</strong> — <code>POST /api/v1/mask</code> reçoit votre texte, détecte les valeurs sensibles, remplace chacune par un jeton et renvoie l'identifiant de session.</li>
+      <li><strong>Transport</strong> — vous envoyeriez ce texte protégé au modèle. Dans la démonstration, le texte reste chez vous.</li>
+      <li><strong>Unmask</strong> — <code>POST /api/v1/unmask</code> reçoit la réponse contenant les jetons, la même session, et rétablit les valeurs d'origine.</li>
+    </ol>
+
+    <div class="code-card">
+      <div class="code-card-head"><span>curl · masquer puis restaurer</span><button class="copy-btn" data-copy="roundtrip">Copier</button></div>
+<pre id="code-roundtrip"><code># 1) Masquage
+curl -s http://localhost:8787/api/v1/mask \
+  -H "Authorization: Bearer local-dev-key" \
+  -H "Content-Type: application/json" \
+  -d '{"text":"Écrire à ana@example.com au +33 6 12 34 56 78"}'
+
+# → {"masked_text":"Écrire à [[EMAIL_001]] au [[PHONE_001]]",
+#     "session_id":"vf_...", "entities":[...]}
+
+# 2) Restauration (même session)
+curl -s http://localhost:8787/api/v1/unmask \
+  -H "Authorization: Bearer local-dev-key" \
+  -H "Content-Type: application/json" \
+  -d '{"text":"Réponse : [[EMAIL_001]] sera prévenu.","session_id":"vf_..."}'
+
+# → {"text":"Réponse : ana@example.com sera prévenu.","unresolved":[]}</code></pre>
+    </div>
+
+    <div class="callout"><strong>Le point important</strong> — tant que la session est la même, une même valeur reçoit toujours le même jeton : le modèle comprend que deux occurrences désignent la même personne, sans jamais la voir.</div>
+  </section>
+
+  <!-- ═══════════ 3. PASSERELLE ═══════════ -->
+  <section class="doc-section" id="passerelle">
+    <p class="doc-num">03</p>
+    <h2>Passerelle compatible OpenAI</h2>
+    <p class="doc-p">Veilforge implémente le contrat de <code>/v1/chat/completions</code>. Vous ne changez rien dans votre code : vous modifiez seulement l'URL de base et la clé.</p>
+
+    <div class="grid-2">
+      <div class="info-box"><h3>Avec un fournisseur</h3><p>Définissez <code>VEILFORGE_UPSTREAM_URL</code> (URL de base, sans <code>/chat/completions</code>) et <code>VEILFORGE_UPSTREAM_API_KEY</code>. La passerelle masque la requête, la transmet, puis restaure la réponse.</p></div>
+      <div class="info-box"><h3>Sans fournisseur</h3><p>La passerelle renvoie un écho de développement marqué <code>"mock": true</code>. Ce contenu n'est jamais présenté comme une réponse de modèle : il sert uniquement à tester la chaîne.</p></div>
+    </div>
+
+    <div class="code-card">
+      <div class="code-card-head"><span>Python · client OpenAI</span><button class="copy-btn" data-copy="openai">Copier</button></div>
+<pre id="code-openai"><code>from openai import OpenAI
+
+client = OpenAI(
+    base_url="http://localhost:8787/v1",
+    api_key="local-dev-key",          # VEILFORGE_API_KEY
+)
+
+reponse = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[{"role": "user",
+               "content": "Écris un mail à ana@example.com"}],
+)
+print(reponse.choices[0].message.content)</code></pre>
+    </div>
+
+    <div class="code-card">
+      <div class="code-card-head"><span>curl · passerelle</span><button class="copy-btn" data-copy="gateway">Copier</button></div>
+<pre id="code-gateway"><code>curl -s http://localhost:8787/v1/chat/completions \
+  -H "Authorization: Bearer local-dev-key" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"gpt-4o-mini",
+       "messages":[{"role":"user","content":"Contact ana@example.com"}]}'</code></pre>
+    </div>
+
+    <ul class="doc-ul">
+      <li><strong>Streaming</strong> — si <code>"stream": true</code>, les événements SSE sont transmis et démasqués à la volée ; l'en-tête <code>X-Veilforge-Session</code> renvoie la session utilisée.</li>
+      <li><strong>Session réutilisable</strong> — envoyez <code>X-Veilforge-Session: vf_...</code> pour conserver les mêmes jetons d'une requête à l'autre.</li>
+      <li><strong>Échec amont</strong> — en mode strict, une erreur du fournisseur renvoie <code>502</code> sans jamais restituer le texte protégé : la demande est refusée plutôt que risquée.</li>
+      <li><strong>Champ protégés</strong> — le masquage s'applique récursivement aux messages, aux schémas d'outils, aux arguments et aux résultats d'outils (chaînes uniquement), en ignorant <code>model</code>, <code>role</code>, <code>stream</code>, <code>temperature</code> et <code>max_tokens</code>.</li>
+    </ul>
+  </section>
+
+  <!-- ═══════════ 4. API ═══════════ -->
+  <section class="doc-section" id="api">
+    <p class="doc-num">04</p>
+    <h2>Référence API</h2>
+    <p class="doc-p">Toutes les routes <code>/api/v1/*</code> exigent l'en-tête <code>Authorization: Bearer &lt;VEILFORGE_API_KEY&gt;</code>. Le budget est de <strong>120 requêtes par minute et par adresse IP</strong>. La page <code>/api/v1/health</code> et la racine sont exemptées.</p>
+
+    <div class="table-wrap">
+      <table class="api-table">
+        <thead><tr><th>Méthode</th><th>Chemin</th><th>Rôle</th></tr></thead>
+        <tbody>
+          <tr><td><span class="method post">POST</span></td><td><code>/api/v1/detect</code></td><td>Liste les entités détectées, sans créer de session ni de jeton.</td></tr>
+          <tr><td><span class="method post">POST</span></td><td><code>/api/v1/mask</code></td><td>Remplace les valeurs par des jetons, crée (ou réutilise) la session et chiffre les correspondances.</td></tr>
+          <tr><td><span class="method post">POST</span></td><td><code>/api/v1/unmask</code></td><td>Rétablit les valeurs d'origine. <code>session_id</code> obligatoire.</td></tr>
+          <tr><td><span class="method post">POST</span></td><td><code>/api/v1/analyze</code></td><td>Combine masquage et évaluation : renvoie l'aperçu protégé et un risque <code>high</code> / <code>none</code>.</td></tr>
+          <tr><td><span class="method post">POST</span></td><td><code>/api/v1/sessions</code></td><td>Crée une session vide et renvoie son identifiant.</td></tr>
+          <tr><td><span class="method get">GET</span></td><td><code>/api/v1/sessions</code></td><td>Liste les 100 sessions les plus récentes (identifiant, création, échéance).</td></tr>
+          <tr><td><span class="method get">GET</span></td><td><code>/api/v1/analytics</code></td><td>Compteurs locaux : masquages, sessions, rétention.</td></tr>
+          <tr><td><span class="method get">GET</span></td><td><code>/api/v1/health</code></td><td>État du service : mode, fournisseur configuré. Sans authentification.</td></tr>
+          <tr><td><span class="method post">POST</span></td><td><code>/v1/chat/completions</code></td><td>Passerelle compatible OpenAI, avec restauration de la réponse.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="doc-sub">Corps de requête commun</h3>
+    <div class="code-card">
+      <div class="code-card-head"><span>JSON</span><button class="copy-btn" data-copy="body">Copier</button></div>
+<pre id="code-body"><code>{
+  "text": "Texte à analyser",
+  "session_id": "vf_...",                  // optionnel : réutilise une session
+  "custom_dictionary": {                   // optionnel : valeurs à protéger
+    "CLIENT_INTERNE": ["nom de code Projet Sirius"]
+  }
+}</code></pre>
+    </div>
+
+    <h3 class="doc-sub">Réponse de <code>POST /api/v1/mask</code></h3>
+    <div class="code-card">
+      <div class="code-card-head"><span>JSON</span><button class="copy-btn" data-copy="maskres">Copier</button></div>
+<pre id="code-maskres"><code>{
+  "masked_text": "Écrire à [[EMAIL_001]] avant [[DATE_001]]",
+  "session_id": "vf_Kd8s...",
+  "entities": [
+    {
+      "type": "EMAIL",
+      "placeholder": "[[EMAIL_001]]",
+      "confidence": 0.99,
+      "source": "rules",
+      "fingerprint": "1d420a5c0cf5948a"
+    }
+  ]
+}</code></pre>
+    </div>
+
+    <div class="callout"><strong>Empreintes, pas de valeurs</strong> — les réponses et le journal n'exposent que le type, le jeton, la confiance et une empreinte SHA-256 tronquée. La valeur d'origine ne quitte jamais le coffre chiffré.</div>
+  </section>
+
+  <!-- ═══════════ 5. JETONS ═══════════ -->
+  <section class="doc-section" id="jetons">
+    <p class="doc-num">05</p>
+    <h2>Jetons &amp; sessions</h2>
+    <p class="doc-p">Un jeton a la forme <code>[[TYPE_001]]</code> : un type en majuscules, puis un numéro séquentiel sur trois chiffres, propre à chaque session.</p>
+
+    <div class="table-wrap">
+      <table class="api-table">
+        <thead><tr><th>Règle</th><th>Explication</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Stable dans la session</strong></td><td>La même valeur reçoit toujours le même jeton : le contexte du dialogue est préservé.</td></tr>
+          <tr><td><strong>Isolé entre sessions</strong></td><td>Deux sessions indépendantes ne partagent aucune correspondance.</td></tr>
+          <tr><td><strong>Numérotation continue</strong></td><td>Le compteur reprend au valeur la plus élevée déjà utilisée pour ce type.</td></tr>
+          <tr><td><strong>Inconnu = conservé</strong></td><td>Un jeton absent du coffre (session expirée, clé changée) reste tel quel et apparaît dans <code>unresolved</code>.</td></tr>
+          <tr><td><strong>Rétention</strong></td><td>Les sessions expirent après <code>VEILFORGE_RETENTION_HOURS</code> (24 h par défaut).</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn"><strong>Clé de chiffrement</strong> — si <code>VEILFORGE_ENCRYPTION_KEY</code> n'est pas définie, une clé éphémère est générée au démarrage : après un redémarrage, les anciennes correspondances deviennent illisibles et les jetons sont conservés comme « inconnus ». Définissez toujours une clé stable en production.</div>
+  </section>
+
+  <!-- ═══════════ 6. DÉTECTION ═══════════ -->
+  <section class="doc-section" id="detection">
+    <p class="doc-num">06</p>
+    <h2>Détection</h2>
+    <p class="doc-p">Le détecteur par défaut repose sur des règles déterministes, vérifiables et rapides. Chaque entité est associée à un score de confiance ; les chevauchements sont résolus en gardant le span le plus fiable.</p>
+
+    <div class="table-wrap">
+      <table class="api-table">
+        <thead><tr><th>Type</th><th>Exemple</th><th>Confiance</th><th>Remarque</th></tr></thead>
+        <tbody>
+          <tr><td><code>EMAIL</code></td><td>ana@example.com</td><td>0,99</td><td>—</td></tr>
+          <tr><td><code>CREDIT_CARD</code></td><td>4242 4242 4242 4242</td><td>0,99</td><td>Contrôle de Luhn obligatoire</td></tr>
+          <tr><td><code>SECRET</code></td><td>sk_live_…, password: …</td><td>0,99</td><td>Préfixes API et mots de passe</td></tr>
+          <tr><td><code>IBAN</code></td><td>FR76 3000 6000 0112 …</td><td>0,96</td><td>Format bancaire conservateur</td></tr>
+          <tr><td><code>IP_ADDRESS</code></td><td>192.168.1.24</td><td>0,94</td><td>—</td></tr>
+          <tr><td><code>NATIONAL_ID</code></td><td>passeport AB1234567</td><td>0,91</td><td>Mot-clé contextuel requis</td></tr>
+          <tr><td><code>DATE_OF_BIRTH</code></td><td>né le 12/07/1988</td><td>0,88</td><td>Indice multilingue requis</td></tr>
+          <tr><td><code>PHONE</code></td><td>+33 6 12 34 56 78</td><td>0,83</td><td>Formes internationales</td></tr>
+          <tr><td><code>PERSON</code></td><td>client Jean Dupont</td><td>0,69</td><td>Uniquement avec un indice humain à proximité</td></tr>
+          <tr><td>Valeur personnalisée</td><td>Projet Sirius</td><td>1,00</td><td>Via <code>custom_dictionary</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ul class="doc-ul">
+      <li><strong>Multilingue</strong> — indices en anglais, français, malgache, allemand et espagnol.</li>
+      <li><strong>Cas d'usage du dictionnaire</strong> — noms internes, codenames, clients récurrents : envoyez-les dans <code>custom_dictionary</code> pour un masquage certain.</li>
+      <li><strong>Étendre</strong> — branchez un NER local (spaCy, Presidio) en implémentant le protocole <code>Detector</code> : le reste de la chaîne ne change pas.</li>
+      <li><strong>Limite honnête</strong> — une détection par règles n'est pas une garantie de conformité. Faites toujours relire les sorties sensibles.</li>
+    </ul>
+
+    <div class="code-card">
+      <div class="code-card-head"><span>JSON · dictionnaire personnalisé</span><button class="copy-btn" data-copy="dict">Copier</button></div>
+<pre id="code-dict"><code>{
+  "text": "Le client Projet Sirius demande un devis.",
+  "custom_dictionary": {
+    "CLIENT": ["Projet Sirius", "Compte Azurelion"]
+  }
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- ═══════════ 7. CONFIGURATION ═══════════ -->
+  <section class="doc-section" id="configuration">
+    <p class="doc-num">07</p>
+    <h2>Configuration</h2>
+    <p class="doc-p">Tout se règle par variables d'environnement, lues au démarrage du service.</p>
+
+    <div class="table-wrap">
+      <table class="api-table">
+        <thead><tr><th>Variable</th><th>Défaut</th><th>Rôle</th></tr></thead>
+        <tbody>
+          <tr><td><code>VEILFORGE_API_KEY</code></td><td><code>local-dev-key</code></td><td>Clé portée par les clients (<code>Authorization: Bearer …</code>). À changer impérativement en production.</td></tr>
+          <tr><td><code>VEILFORGE_ENCRYPTION_KEY</code></td><td>éphémère</td><td>Clé Fernet du coffre. Sans elle, les correspondances ne survivent pas à un redémarrage.</td></tr>
+          <tr><td><code>VEILFORGE_UPSTREAM_URL</code></td><td>vide</td><td>URL de base du fournisseur compatible OpenAI. Vide = écho de développement.</td></tr>
+          <tr><td><code>VEILFORGE_UPSTREAM_API_KEY</code></td><td>vide</td><td>Clé transmise au fournisseur en amont.</td></tr>
+          <tr><td><code>VEILFORGE_FAIL_CLOSED</code></td><td><code>true</code></td><td><code>true</code> : refuse toute forme non prise en charge. <code>false</code> : mode permissif, à éviter.</td></tr>
+          <tr><td><code>VEILFORGE_RETENTION_HOURS</code></td><td><code>24</code></td><td>Durée de vie des sessions et de leurs correspondances.</td></tr>
+          <tr><td><code>VEILFORGE_DB_PATH</code></td><td><code>veilforge.db</code></td><td>Chemin du fichier SQLite (chiffré au repos).</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="code-card">
+      <div class="code-card-head"><span>.env — production</span><button class="copy-btn" data-copy="env">Copier</button></div>
+<pre id="code-env"><code>VEILFORGE_API_KEY=change-me-in-production
+VEILFORGE_ENCRYPTION_KEY=&lt;python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"&gt;
+VEILFORGE_UPSTREAM_URL=https://api.openai.com/v1
+VEILFORGE_UPSTREAM_API_KEY=sk-...
+VEILFORGE_FAIL_CLOSED=true
+VEILFORGE_RETENTION_HOURS=24</code></pre>
+    </div>
+  </section>
+
+  <!-- ═══════════ 8. SÉCURITÉ ═══════════ -->
+  <section class="doc-section" id="securite">
+    <p class="doc-num">08</p>
+    <h2>Sécurité</h2>
+    <p class="doc-p">Le principe directeur : <strong>seul du contenu tokenisé franchit la frontière</strong>. Tout le reste reste sur la machine qui exécute le service.</p>
+
+    <div class="grid-2">
+      <div class="info-box"><h3>Ce qui est chiffré</h3><p>Les correspondances jeton → valeur sont chiffrées avec Fernet et isolées par session. Le fichier SQLite ne contient donc aucune valeur sensible en clair.</p></div>
+      <div class="info-box"><h3>Ce qui est journalisé</h3><p>Uniquement des catégories, des comptages et des empreintes SHA-256 tronquées. Aucune valeur détectée n'est écrite dans le journal d'audit.</p></div>
+      <div class="info-box"><h3>Mode strict</h3><p>Les formes de contenu non prises en charge et les pannes amont sont refusées. Le diagnostic est audité, la divulgation n'a pas lieu.</p></div>
+      <div class="info-box"><h3>Contrôle d'accès</h3><p>Clé API obligatoire sur les routes métier, limitation à 120 requêtes par minute et par IP, sessions à durée de vie limitée.</p></div>
+    </div>
+
+    <h3 class="doc-sub">Checklist de mise en production</h3>
+    <ol class="check-list">
+      <li>Remplacer <code>local-dev-key</code> par une longue valeur aléatoire.</li>
+      <li>Définir <code>VEILFORGE_ENCRYPTION_KEY</code> et la conserver stable (gestionnaire de secrets).</li>
+      <li>Toujours <code>VEILFORGE_FAIL_CLOSED=true</code>.</li>
+      <li>Servir le service en HTTPS derrière un reverse proxy, exposé seulement à vos applications.</li>
+      <li>Choisir un <code>VEILFORGE_DB_PATH</code> sur un volume chiffré et sauvegardé.</li>
+      <li>Surveiller le journal d'audit (événements <code>mask</code>, <code>unmask</code>, <code>upstream_error</code>).</li>
+      <li>Relire les limites de la section <a href="#detection">Détection</a> avant de déclarer une conformité.</li>
+    </ol>
+
+    <div class="callout warn"><strong>Ce que Veilforge ne fait pas</strong> — pas de traitement d'image, d'OCR ni de détection de visage : ces entrées sont refusées en mode strict plutôt que transmises à l'aveugle. La détection par règles ne remplace pas une analyse juridique.</div>
+  </section>
+
+  <!-- ═══════════ 9. ARCHITECTURE ═══════════ -->
+  <section class="doc-section" id="architecture">
+    <p class="doc-num">09</p>
+    <h2>Architecture</h2>
+    <p class="doc-p">Le service est volontairement linéaire : un détecteur, un coffre de correspondances chiffré, une passerelle HTTP. Aucune donnée n'est envoyée à un tiers autre que le fournisseur que vous configurez.</p>
+
+    <figure class="doc-figure">
+      <img src="/assets/img/flow.svg" width="980" height="300" alt="Votre prompt passe par le coffre chiffré de Veilforge avant d'atteindre le modèle, puis la réponse revient se faire restaurer." loading="lazy">
+    </figure>
+
+    <div class="code-card">
+      <div class="code-card-head"><span>Chemin d'une requête</span></div>
+<pre><code>client ─▶ Veilforge (détection + coffre chiffré) ─▶ fournisseur
+client ◀─────────── restauration ◀──────────────── fournisseur
+
+POST /v1/chat/completions
+  1. création/réutilisation de la session
+  2. masquage récursif du payload (messages, tools, results)
+  3. transmission au fournisseur, ou écho marqué mock:true
+  4. restauration de la réponse (y compris le flux SSE)
+  5. audit : types, comptages, empreintes</code></pre>
+    </div>
+
+    <p class="doc-p">Le code est organisé en trois modules : <code>veilforge/detection.py</code> (règles et protocole <code>Detector</code>), <code>veilforge/vault.py</code> (sessions, chiffrement, journal) et <code>veilforge/main.py</code> (routes FastAPI et passerelle).</p>
+  </section>
+
+  <!-- ═══════════ 10. OUTILLAGE ═══════════ -->
+  <section class="doc-section" id="outillage">
+    <p class="doc-num">10</p>
+    <h2>Tests &amp; Docker</h2>
+
+    <div class="code-card">
+      <div class="code-card-head"><span>Tests</span><button class="copy-btn" data-copy="tests">Copier</button></div>
+<pre id="code-tests"><code>python -m pytest -q
+# 3 passed — détection, aller-retour masque/restauration, jetons inconnus</code></pre>
+    </div>
+
+    <div class="code-card">
+      <div class="code-card-head"><span>Docker Compose</span><button class="copy-btn" data-copy="docker">Copier</button></div>
+<pre id="code-docker"><code>docker compose up --build
+# service sur le port 8787, données dans le volume veilforge-data (/data)</code></pre>
+    </div>
+
+    <p class="doc-p">Le conteneur expose le port 8787, place la base dans <code>/data</code> et redémarre automatiquement. Pensez à fournir un <code>.env</code> (le compose le lit) contenant les secrets décrits dans <a href="#configuration">Configuration</a>.</p>
+  </section>
+
+  <!-- ═══════════ 11. FAQ ═══════════ -->
+  <section class="doc-section" id="faq">
+    <p class="doc-num">11</p>
+    <h2>Questions fréquentes</h2>
+
+    <details class="faq" open>
+      <summary>Mes données partent-elles vers un modèle ?</summary>
+      <p>Seul le texte masqué est transmis, et uniquement si vous avez configuré <code>VEILFORGE_UPSTREAM_URL</code>. Sans fournisseur, la passerelle renvoie un écho de développement. La démonstration de la page d'accueil n'appelle aucun modèle.</p>
+    </details>
+    <details class="faq">
+      <summary>Puis-je utiliser Veilforge sans interface ?</summary>
+      <p>Oui. Le projet est API-first : la page d'accueil et la démonstration sont des clients de plus des routes <code>/api/v1/*</code>, documentées dans le <a href="/swagger" target="_blank" rel="noopener">Swagger</a>.</p>
+    </details>
+    <details class="faq">
+      <summary>Que se passe-t-il si je change la clé de chiffrement ?</summary>
+      <p>Les correspondances anciennes deviennent illisibles : les jetons concernés sont conservés tels quels et remontés dans <code>unresolved</code>, jamais dévoilés par erreur. Créez une nouvelle session pour repartir proprement.</p>
+    </details>
+    <details class="faq">
+      <summary>Comment ajouter un détecteur plus précis ?</summary>
+      <p>Implémentez le protocole <code>Detector</code> (méthode <code>detect</code>) avec un modèle NER local, puis remplacez l'instance dans <code>vault.detector</code>. Le coffre, la passerelle et les jetons restent inchangés.</p>
+    </details>
+    <details class="faq">
+      <summary>Où sont stockées les données ?</summary>
+      <p>Dans un fichier SQLite local (<code>VEILFORGE_DB_PATH</code>), avec les correspondances chiffrées. Le journal d'audit ne contient que des catégories, des comptages et des empreintes.</p>
+    </details>
+    <details class="faq">
+      <summary>Comment montrer un modèle à un client sans révéler ses données ?</summary>
+      <p>Lancez la démonstration de la <a href="/">page d'accueil</a> : le texte devient <code>[[EMAIL_001]]</code>, puis revient à l'identique. C'est la même mécanique que la passerelle, en local.</p>
+    </details>
+  </section>
+
+  <div class="doc-end">
+    <div>
+      <h2>Prêt à essayer ?</h2>
+      <p class="doc-p">Lancez la démonstration interactive sur la page d'accueil, ou explorez les routes dans le Swagger.</p>
+    </div>
+    <div class="doc-end-actions">
+      <a class="button primary lg" href="/#exemple">Lancer l'exemple →</a>
+      <a class="button secondary lg" href="/swagger" target="_blank" rel="noopener">Ouvrir le Swagger ↗</a>
+    </div>
+  </div>
+
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="inner footer-inner">
+    <a class="brand small" href="/"><span class="logo">V</span>veilforge<span class="accent">.</span></a>
+    <span class="footer-tag">La confidentialité commence avant l'envoi.</span>
+    <nav class="footer-links" aria-label="Pied de page">
+      <a href="/">Accueil</a>
+      <a href="#demarrage">Documentation</a>
+      <a href="/swagger" target="_blank" rel="noopener">Swagger ↗</a>
+      <a href="/openapi.json" target="_blank" rel="noopener">OpenAPI JSON ↗</a>
+    </nav>
+  </div>
+</footer>
+
+</main>
+</body></html>

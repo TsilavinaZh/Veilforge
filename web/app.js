@@ -1,7 +1,7 @@
 'use strict';
 const $ = id => document.getElementById(id);
 
-let apiKey = (() => { try { return sessionStorage.getItem('veilforge-key') || 'local-dev-key'; } catch { return 'local-dev-key'; } })();
+const API_KEY = 'local-dev-key';
 let demoBusy = false;
 let demoSession = null;
 let demoMasked = '';
@@ -9,8 +9,10 @@ let demoIndex = 0;
 
 const labels = {
   EMAIL: 'Adresse e-mail', PHONE: 'Téléphone', PERSON: 'Personne',
-  CREDIT_CARD: 'Carte bancaire', SECRET: 'Secret / identifiant',
-  IP_ADDRESS: 'Adresse IP', IBAN: 'Compte bancaire',
+  CREDIT_CARD: 'Carte bancaire', SECRET: 'Clé / secret',
+  PASSWORD: 'Mot de passe', ADDRESS: 'Adresse postale',
+  BANK_ACCOUNT: 'Compte bancaire', IBAN: 'IBAN',
+  IP_ADDRESS: 'Adresse IP',
   DATE_OF_BIRTH: 'Date de naissance', NATIONAL_ID: 'Pièce d’identité'
 };
 
@@ -27,7 +29,17 @@ const DEMO_EXAMPLES = [
 
   'Résumé du dossier : client nommé Jean Dupont, né le 12/07/1988, joignable au +261 34 12 345 67. ' +
   'Clé API : crm_9f2b7c1d4e6a8b0c1d2e3f4a5b6c7d8e. ' +
-  'Merci de rappeler avant le 03/09/2026.'
+  'Merci de rappeler avant le 03/09/2026.',
+
+  'Livraison au 24 rue des Oliviers, 69001 Lyon ; contact : samira.benali@exemple.fr, ' +
+  'téléphone +33 4 78 12 34 56. Facture à envoyer à pierre@atelier-lyon.fr.',
+
+  'Identifiants de test — mot de passe du VPN : Blue-River-77-Xk, pwd= staging_9f31ab77. ' +
+  'Clé Git : ghp_ABCDEFGHijklmnopqrstuvwxyz123456, ' +
+  'JWT : eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkFubmFifQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJVadQssw5c.',
+
+  'Virement du 14/03/2026 sur le compte n° 123456789012, RIB FR1420041010050500013M02606. ' +
+  'Titulaire : Mme Claire Dubont, née le 12/07/1988, passeport AB1234567, joignable au +261 34 12 345 67.'
 ];
 
 /* ── Chargement ─────────────────────────────────────────── */
@@ -42,12 +54,12 @@ setTimeout(hideLoader, 4000);
 async function api(path, body, signal) {
   const response = await fetch('/api/v1/' + path, {
     method: body === undefined ? 'GET' : 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + apiKey },
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + API_KEY },
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     signal: signal || AbortSignal.timeout(20000)
   });
   if (!response.ok) {
-    if (response.status === 401) throw new Error('Clé API incorrecte. Corrigez-la dans « Clé API » du pied de page.');
+    if (response.status === 401) throw new Error('Clé API refusée par le service. Vérifiez VEILFORGE_API_KEY côté serveur.');
     if (response.status === 429) throw new Error('Trop de requêtes. Patientez une minute avant de réessayer.');
     throw new Error('Le service ne peut pas traiter cette demande (' + response.status + '). Réessayez.');
   }
@@ -239,47 +251,21 @@ async function health() {
   }
 }
 
-/* ── Thème ──────────────────────────────────────────────── */
-function applyTheme(light) {
-  document.documentElement.dataset.theme = light ? 'light' : 'dark';
-  document.querySelectorAll('[data-theme-toggle]').forEach(button => {
-    button.textContent = light ? 'Passer au thème sombre' : 'Passer au thème clair';
-    button.setAttribute('aria-pressed', String(light));
-  });
+/* ── Bandeau de modèles en défilement ───────────────────── */
+function initMarquee() {
+  const marquee = document.querySelector('[data-marquee]');
+  if (!marquee) return;
+  const track = marquee.querySelector('.marquee-track');
+  const group = track && track.firstElementChild;
+  if (!group) return;
+  const clone = group.cloneNode(true);
+  clone.setAttribute('aria-hidden', 'true');
+  track.append(clone);
+  marquee.classList.add('is-animated');
 }
-try { applyTheme(localStorage.getItem('veilforge-theme') === 'light'); } catch { applyTheme(false); }
-
-document.querySelectorAll('[data-theme-toggle]').forEach(button => {
-  button.addEventListener('click', () => {
-    const light = document.documentElement.dataset.theme !== 'light';
-    applyTheme(light);
-    try { localStorage.setItem('veilforge-theme', light ? 'light' : 'dark'); } catch {}
-  });
-});
-
-/* ── Clé API (pied de page) ─────────────────────────────── */
-$('key-form').addEventListener('submit', async event => {
-  event.preventDefault();
-  const value = $('api-key').value.trim();
-  if (value) {
-    apiKey = value;
-    try { sessionStorage.setItem('veilforge-key', value); } catch {}
-  }
-  $('api-key').value = '';
-  const status = $('key-status');
-  try {
-    await api('analytics');
-    status.textContent = 'Connexion vérifiée. Cette clé est utilisée dans cet onglet.';
-    status.classList.remove('error');
-    health();
-  } catch (error) {
-    status.textContent = errorMessage(error);
-    status.classList.add('error');
-  }
-});
 
 /* ── Navigation par ancres ──────────────────────────────── */
-const anchors = ['exemple', 'compatibilite', 'fonctionnement', 'capacites', 'integration'];
+const anchors = ['exemple', 'fonctionnement', 'capacites', 'integration'];
 
 function route() {
   const raw = location.hash.slice(1);
@@ -303,5 +289,6 @@ window.addEventListener('hashchange', route);
 /* ── Démarrage ──────────────────────────────────────────── */
 $('base-url').textContent = location.origin + '/v1';
 $('demo-input').value = DEMO_EXAMPLES[0];
+initMarquee();
 route();
 health();

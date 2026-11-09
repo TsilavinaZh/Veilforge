@@ -14,7 +14,10 @@ copy .env.example .env
 uvicorn veilforge.main:app --reload --port 8787
 ```
 
-Open `http://localhost:8787`. The root URL is a presentation page (hero, provider logos, architecture, capabilities, integration snippet) that ends with a live example: **Lancer la démonstration** masks a fictional text, shows the tokens and restores the original values in the same session. There is no console UI — only this page and the API docs at `/docs`.
+Open `http://localhost:8787`. The root URL is a presentation page (hero, provider logos, architecture, capabilities, integration snippet) that ends with a live example: **Lancer la démonstration** masks a fictional text, shows the tokens and restores the original values in the same session. There is no console UI. Two other pages ship with the service:
+
+- `/docs` — the documentation (getting started, gateway usage, API reference, tokens & sessions, detection, configuration, security, FAQ);
+- `/swagger` — the interactive OpenAPI UI (`/redoc` and `/openapi.json` are also available).
 
 ## Use as an OpenAI-compatible gateway
 
@@ -44,12 +47,13 @@ Rule-based detection is designed as a reliable baseline, not a compliance guaran
 - OpenAI Chat Completions compatibility, including SSE passthrough/unmasking
 - Provider configuration (OpenAI-compatible, Anthropic-compatible via configured proxy, Ollama/custom endpoints)
 - Auth, rate limiting, encrypted SQLite storage, retention cleanup, audit events, analytics
-- Landing page with illustrations, provider logos, loading state, health status, and a live mask/unmask example
+- Landing page with illustrations, provider logos, scrolling model strip, loading state, health status, and a live mask/unmask example
+- Documentation page at `/docs` in the same dark UI (sticky table of contents, copyable snippets)
 - Health/readiness endpoints, Docker Compose, tests
 
 ## API
 
-`POST /api/v1/detect`, `/mask`, `/unmask`, `/analyze`, `/sessions`, `GET /api/v1/sessions`, `/analytics`, `/health` and `POST /v1/chat/completions` are documented in Swagger.
+`POST /api/v1/detect`, `/mask`, `/unmask`, `/analyze`, `/sessions`, `GET /api/v1/sessions`, `/analytics`, `/health` and `POST /v1/chat/completions` are described in `/swagger` and explained in `/docs`.
 
 ## Architecture
 
